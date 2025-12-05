@@ -1,0 +1,35 @@
+name: yutaa_shared
+description: Shared business logic, models, and UI components for Yutaa Service App.
+version: 0.0.1
+publish_to: "none"
+
+environment:
+  sdk: ^3.5.4
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+
+  # JSON & Serialization
+  json_annotation: ^4.9.0
+  freezed_annotation: ^2.4.4
+
+  # Networking
+  dio: ^5.7.0
+
+  # Startups
+  shared_preferences: ^2.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.12
+  riverpod_generator: ^2.4.2
+  freezed: ^2.5.7
+  json_serializable: ^6.8.0

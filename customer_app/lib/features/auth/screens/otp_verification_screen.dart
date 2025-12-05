@@ -1,0 +1,206 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+import 'package:pinput/pinput.dart';
+import 'package:yutaa_customer_app/theme/app_theme.dart';
+
+class OtpVerificationScreen extends StatefulWidget {
+  final String phoneNumber;
+
+  const OtpVerificationScreen({super.key, required this.phoneNumber});
+
+  @override
+  State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
+}
+
+class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
+  final TextEditingController _otpController = TextEditingController();
+  final String _testOtp = '123456';
+
+  void _verifyOtp() {
+    if (_otpController.text == _testOtp) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Login Successful!')),
+      );
+      context.go('/setup-profile');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid OTP')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 10),
+                // Back Button
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: IconButton(
+                    icon: Icon(Icons.arrow_back, color: theme.colorScheme.onBackground),
+                    onPressed: () => context.pop(),
+                  ),
+                ),
+                // Logo Area (Consistent with LoginScreen)
+                Center(
+                  child: Container(
+                    height: 200,
+                    width: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          AppTheme.primaryPurple.withOpacity(0.3),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/Logo.png',
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Icon(Icons.lock_person, size: 80, color: theme.colorScheme.onBackground),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Verification Text
+                Text(
+                  'Verification',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onBackground,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Enter the code sent to',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: theme.colorScheme.onBackground.withOpacity(0.6),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                Text(
+                  widget.phoneNumber,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onBackground,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 50),
+                // Pinput Field
+                Pinput(
+                  length: 6,
+                  controller: _otpController,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  keyboardType: TextInputType.number,
+                  defaultPinTheme: PinTheme(
+                    width: 50,
+                    height: 60,
+                    textStyle: TextStyle(
+                        fontSize: 24, color: theme.colorScheme.onBackground, fontWeight: FontWeight.bold),
+                    decoration: BoxDecoration(
+                      color: theme.inputDecorationTheme.fillColor,
+                      border: Border.all(color: isDark ? Colors.white.withOpacity(0.1) : Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  focusedPinTheme: PinTheme(
+                    width: 55,
+                    height: 65,
+                    textStyle: TextStyle(
+                        fontSize: 24, color: theme.colorScheme.onBackground, fontWeight: FontWeight.bold),
+                    decoration: BoxDecoration(
+                      color: theme.inputDecorationTheme.fillColor,
+                      border: Border.all(color: AppTheme.primaryPurple, width: 2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onCompleted: (pin) => _verifyOtp(),
+                ),
+                const SizedBox(height: 40),
+                // Verify Button
+                Container(
+                  width: double.infinity,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF8A2BE2), Color(0xFFA960EE)], // Purple gradient
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryPurple.withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    onPressed: _verifyOtp,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text('Verify & Login',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // Resend Text
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Didn't receive code? ",
+                      style: TextStyle(color: theme.colorScheme.onBackground.withOpacity(0.6)),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        // Resend logic
+                      },
+                      child: const Text(
+                        "Resend",
+                        style: TextStyle(
+                          color: AppTheme.primaryPurple,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

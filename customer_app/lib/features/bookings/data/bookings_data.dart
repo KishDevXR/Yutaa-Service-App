@@ -42,26 +42,56 @@ class BookingsRepository extends ChangeNotifier {
       final partnerStatus = booking.partnerStatuses.firstWhere((p) => p.partner.id == partnerId);
       partnerStatus.status = PartnerRequestStatus.approved;
       
-      // Cancel others? Logic: "who accept first is concept".
-      // So if one accepts, others are effectively cancelled for this specific request.
-      for (var p in booking.partnerStatuses) {
-        if (p.partner.id != partnerId) {
-          p.status = PartnerRequestStatus.cancelled;
-        }
-      }
+      // Don't cancel others immediately. Allow them to be in 'waiting' state until user confirms one.
+      // for (var p in booking.partnerStatuses) {
+      //   if (p.partner.id != partnerId) {
+      //     p.status = PartnerRequestStatus.cancelled;
+      //   }
+      // }
       
-      booking.status = BookingStatus.approved; // Overall status ready for user confirmation
+      booking.status = BookingStatus.approved; // Indicates at least one partner has approved
       notifyListeners();
     } catch (e) {
       debugPrint("Error updating booking: $e");
     }
   }
 
-  // User Accepts the Logic
+  // User Declines a Partner
+  void userDeclinePartner(String bookingId, String partnerId) {
+    try {
+      final booking = _bookings.firstWhere((b) => b.id == bookingId);
+      final partnerStatus = booking.partnerStatuses.firstWhere((p) => p.partner.id == partnerId);
+      
+      partnerStatus.status = PartnerRequestStatus.rejected;
+
+      // Check if any other partner is currently 'approved'. 
+      // If no one else is approved, revert booking status to 'waiting'
+      bool hasApprovedPartner = booking.partnerStatuses.any((p) => p.status == PartnerRequestStatus.approved);
+      if (!hasApprovedPartner) {
+        booking.status = BookingStatus.waiting;
+      }
+      
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error declining partner: $e");
+    }
+  }
+
+  // User Accepts a Partner (Final Confirmation)
   void userConfirmPartner(String bookingId, String partnerId) {
      try {
        final booking = _bookings.firstWhere((b) => b.id == bookingId);
+       
+       // Finalize booking
        booking.status = BookingStatus.in_progress;
+       
+       // Now cancel all other partners as user has made a choice
+       for (var p in booking.partnerStatuses) {
+         if (p.partner.id != partnerId) {
+           p.status = PartnerRequestStatus.cancelled;
+         }
+       }
+       
        notifyListeners();
      } catch (e) {
        debugPrint("Error confirming booking: $e");

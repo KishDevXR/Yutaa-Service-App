@@ -23,15 +23,12 @@ class _MainWrapperState extends State<MainWrapper> {
         context.go('/home');
         break;
       case 1:
-        // context.go('/category'); // Placeholder
+        context.go('/services');
         break;
       case 2:
         context.go('/bookings');
         break;
       case 3:
-        // context.go('/messages'); // Placeholder
-        break;
-      case 4:
         // context.go('/profile'); // Placeholder
         break;
     }
@@ -76,17 +73,12 @@ class _MainWrapperState extends State<MainWrapper> {
               NavigationDestination(
                 icon: Icon(Icons.grid_view_outlined),
                 selectedIcon: Icon(Icons.grid_view_rounded),
-                label: 'Category',
+                label: 'Services',
               ),
               NavigationDestination(
                 icon: Icon(Icons.calendar_today_outlined),
                 selectedIcon: Icon(Icons.calendar_today),
                 label: 'Bookings',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.chat_bubble_outline),
-                selectedIcon: Icon(Icons.chat_bubble),
-                label: 'Messages',
               ),
               NavigationDestination(
                 icon: Icon(Icons.person_outline),

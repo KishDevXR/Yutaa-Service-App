@@ -4,6 +4,7 @@ import 'package:yutaa_customer_app/features/bookings/data/bookings_data.dart';
 import 'package:yutaa_customer_app/features/bookings/models/booking_model.dart';
 import 'package:yutaa_customer_app/theme/app_theme.dart';
 import 'package:yutaa_customer_app/features/booking/widgets/partner_card.dart';
+import 'package:yutaa_customer_app/features/bookings/widgets/booking_status_card.dart';
 
 class BookingStatusScreen extends StatefulWidget {
   final String bookingId;
@@ -70,33 +71,9 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
                const SizedBox(height: 24),
 
                // List of Partners with Status
+               // List of Partners with Status
                ...booking.partnerStatuses.map((status) {
-                 return Column(
-                   children: [
-                     Stack(
-                       children: [
-                         // Disable card interaction mostly, just show info
-                         IgnorePointer(
-                           ignoring: true,
-                           child: PartnerCard(partner: status.partner),
-                         ),
-                         // Overlay Status
-                         Positioned.fill(
-                           child: Container(
-                             decoration: BoxDecoration(
-                               color: _getOverlayColor(status.status),
-                               borderRadius: BorderRadius.circular(16),
-                             ),
-                             child: Center(
-                               child: _buildStatusAction(context, booking, status),
-                             ),
-                           ),
-                         ),
-                       ],
-                     ),
-                     const SizedBox(height: 16),
-                   ],
-                 );
+                 return BookingStatusCard(partnerStatus: status, booking: booking);
                }),
 
                // DEBUG TOOL: Simulate Partner Acceptance
@@ -132,45 +109,4 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
     );
   }
 
-  Color _getOverlayColor(PartnerRequestStatus status) {
-    if (status == PartnerRequestStatus.waiting) return Colors.transparent;
-    if (status == PartnerRequestStatus.cancelled) return Colors.black.withOpacity(0.5); // Dimmed
-    if (status == PartnerRequestStatus.approved) return Colors.green.withOpacity(0.1); 
-    return Colors.transparent;
-  }
-
-  Widget _buildStatusAction(BuildContext context, BookingModel booking, PartnerBookingStatus status) {
-     if (status.status == PartnerRequestStatus.waiting) {
-       return Container(
-         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-         decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.circular(20)),
-         child: const Text('Waiting...', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-       );
-     }
-     if (status.status == PartnerRequestStatus.cancelled) {
-        return const Text('Cancelled', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18));
-     }
-     if (status.status == PartnerRequestStatus.approved) {
-        if (booking.status == BookingStatus.approved) {
-           // User needs to confirm
-           return Column(
-             mainAxisAlignment: MainAxisAlignment.center,
-             children: [
-               const Text('Accepted Request!', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 16)),
-               const SizedBox(height: 8),
-               ElevatedButton(
-                 onPressed: () {
-                    BookingsRepository().userConfirmPartner(booking.id, status.partner.id);
-                 }, 
-                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                 child: const Text('Confirm & Pay'),
-               )
-             ],
-           );
-        } else if (booking.status == BookingStatus.in_progress) {
-             return const Text('In Progress', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 20));
-        }
-     }
-     return const SizedBox();
-  }
 }

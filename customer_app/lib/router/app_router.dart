@@ -13,6 +13,7 @@ import 'package:yutaa_customer_app/features/bookings/screens/booking_status_scre
 import 'package:yutaa_customer_app/features/home/screens/home_screen.dart';
 import 'package:yutaa_customer_app/features/home/screens/main_wrapper.dart';
 import 'package:flutter/material.dart';
+import 'package:yutaa_customer_app/features/home/screens/services_screen.dart';
 
 final router = GoRouter(
   initialLocation: '/onboarding',
@@ -80,7 +81,10 @@ final router = GoRouter(
           path: '/bookings',
           builder: (context, state) => const BookingsScreen(),
         ),
-        // Add other bottom nav routes here as placeholders for now
+        GoRoute(
+          path: '/services',
+          builder: (context, state) => const ServicesScreen(),
+        ),
       ],
     ),
   ],

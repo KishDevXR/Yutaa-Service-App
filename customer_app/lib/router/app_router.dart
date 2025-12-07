@@ -14,6 +14,10 @@ import 'package:yutaa_customer_app/features/home/screens/home_screen.dart';
 import 'package:yutaa_customer_app/features/home/screens/main_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:yutaa_customer_app/features/home/screens/services_screen.dart';
+import 'package:yutaa_customer_app/features/profile/screens/profile_screen.dart';
+import 'package:yutaa_customer_app/features/profile/screens/edit_profile_screen.dart';
+import 'package:yutaa_customer_app/features/profile/screens/address_list_screen.dart';
+import 'package:yutaa_customer_app/features/profile/screens/add_address_screen.dart';
 
 final router = GoRouter(
   initialLocation: '/onboarding',
@@ -81,11 +85,27 @@ final router = GoRouter(
           path: '/bookings',
           builder: (context, state) => const BookingsScreen(),
         ),
-        GoRoute(
+       GoRoute(
           path: '/services',
           builder: (context, state) => const ServicesScreen(),
         ),
+        GoRoute(
+          path: '/profile',
+          builder: (context, state) => const ProfileScreen(),
+        ),
       ],
+    ),
+    GoRoute(
+      path: '/edit-profile',
+      builder: (context, state) => const EditProfileScreen(),
+    ),
+    GoRoute(
+      path: '/addresses',
+      builder: (context, state) => const AddressListScreen(),
+    ),
+    GoRoute(
+      path: '/add-address',
+      builder: (context, state) => const AddAddressScreen(),
     ),
   ],
 );

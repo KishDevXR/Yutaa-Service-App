@@ -23,6 +23,15 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
   }
 
   void _onContinue() {
+    if (_firstNameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your first name'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
     // Navigate to Home after profile setup
     context.go('/home');
   }

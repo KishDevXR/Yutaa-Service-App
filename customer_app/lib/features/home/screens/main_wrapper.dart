@@ -29,7 +29,7 @@ class _MainWrapperState extends State<MainWrapper> {
         context.go('/bookings');
         break;
       case 3:
-        // context.go('/profile'); // Placeholder
+        context.go('/profile');
         break;
     }
   }

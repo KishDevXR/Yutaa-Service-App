@@ -15,6 +15,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   String _phoneNumber = '';
+  bool _isValid = false;
 
   @override
   Widget build(BuildContext context) {
@@ -115,6 +116,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   onChanged: (phone) {
                     setState(() {
                       _phoneNumber = phone.completeNumber;
+                      // Basic validation: Check if number length is sufficient (e.g., > 8 digits + country code)
+                      // completeNumber includes country code.
+                      _isValid = phone.number.length >= 10; 
                     });
                   },
                 ),
@@ -140,6 +144,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   child: ElevatedButton(
                     onPressed: () {
+                      if (!_isValid || _phoneNumber.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Please enter a valid phone number'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
                       context.push('/otp', extra: _phoneNumber);
                     },
                     style: ElevatedButton.styleFrom(

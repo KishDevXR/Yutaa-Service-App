@@ -1,11 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:yutaa_customer_app/theme/app_theme.dart';
 import 'package:yutaa_customer_app/features/home/widgets/services_grid.dart';
+import 'package:yutaa_customer_app/features/booking/data/services_data.dart';
+import 'package:yutaa_customer_app/features/booking/models/service_model.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late List<ServiceModel> _randomRecommendations;
+
+  @override
+  void initState() {
+    super.initState();
+    _generateRandomRecommendations();
+  }
+
+  void _generateRandomRecommendations() {
+    final allServices = servicesData.values.expand((x) => x).toList();
+    allServices.shuffle();
+    _randomRecommendations = allServices.take(5).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -34,31 +55,36 @@ class HomeScreen extends StatelessWidget {
                         child: const Icon(Icons.maps_home_work_outlined, color: AppTheme.primaryPurple),
                       ),
                       const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Delivery Address',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              Text(
-                                '10 Avenue Of The Arts...',
-                                style: TextStyle(
-                                  color: theme.colorScheme.onBackground,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                      GestureDetector(
+                        onTap: () {
+                          context.push('/addresses');
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Service Address',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
                               ),
-                              const SizedBox(width: 4),
-                              Icon(Icons.keyboard_arrow_down, color: theme.colorScheme.onBackground.withOpacity(0.7), size: 16),
-                            ],
-                          ),
-                        ],
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  '10 Avenue Of The Arts...',
+                                  style: TextStyle(
+                                    color: theme.colorScheme.onBackground,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Icon(Icons.keyboard_arrow_down, color: theme.colorScheme.onBackground.withOpacity(0.7), size: 16),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -177,11 +203,12 @@ class HomeScreen extends StatelessWidget {
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: [
-                    _buildRecommendationCard(context),
-                    const SizedBox(width: 16),
-                    _buildRecommendationCard(context),
-                  ],
+                  children: _randomRecommendations.map((service) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 16.0),
+                      child: _buildRecommendationCard(context, service),
+                    );
+                  }).toList(),
                 ),
               ),
               const SizedBox(height: 20),
@@ -212,7 +239,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRecommendationCard(BuildContext context) {
+  Widget _buildRecommendationCard(BuildContext context, ServiceModel service) {
     final theme = Theme.of(context);
     return Container(
       width: 250,
@@ -235,15 +262,17 @@ class HomeScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'AC Repair & Service',
+                  service.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: theme.colorScheme.onBackground),
                 ),
                 const SizedBox(height: 4),
-                const Row(
+                Row(
                   children: [
-                    Icon(Icons.star, color: Colors.amber, size: 14),
-                    SizedBox(width: 4),
-                    Text('4.8 (1.2k)', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                    const Icon(Icons.star, color: Colors.amber, size: 14),
+                    const SizedBox(width: 4),
+                    Text('${service.rating} (${service.reviews})', style: const TextStyle(color: Colors.grey, fontSize: 12)),
                   ],
                 ),
               ],

@@ -58,8 +58,37 @@ The repository contains a Flutter workspace with:
 
 ## Next Steps
 - **Backend Integration:** Replace mock repositories (`bookings_data.dart`, `partners_data.dart`) with real API calls.
-- **Service Provider App:** Implement the other side of the marketplace.
+- **Backend Integration:** Replace mock repositories (`bookings_data.dart`, `partners_data.dart`) with real API calls.
 - **Notifications:** Real-time updates for booking status.
 - **Payment Gateway:** Real payment integration.
 
-**Date:** December 5, 2025
+## Implemented Features (Partner App)
+The Service Provider application has been initialized in `partner_app/`.
+
+### 1. Structure & Auth
+- **Setup:** Independent Flutter project sharing `yutaa_shared`.
+- **Onboarding:** Carousel with "Get Started".
+- **Authentication:** 
+    - Login Screen (Phone Number).
+    - OTP Screen (6-digit verification).
+- **Registration:** 
+    - Sections: Personal Details, Professional Info, KYC.
+    - Header: "0/3 Sections" (Bank details skipped).
+    - Logic: Linked after OTP.
+
+### 2. Dashboard
+- **Home Screen:**
+    - **Online/Offline Toggle:** 
+        - *Online:* Shows Summary (Earnings, Jobs) and Job Requests.
+        - *Offline:* Grey placeholder state.
+    - **Summary Cards:** Placeholder stats for Earnings and Jobs.
+    - **Job Requests:** detailed card styling with Accept/Reject actions.
+- **Navigation:** Bottom Navigation Bar (Home, Jobs, Earnings, Profile).
+
+### 3. Bookings Management
+- **Bookings Screen (Jobs Tab):**
+    - **Filtering:** Chips for All, Pending, Confirmed, Completed.
+    - **Grouping:** Time-based (Today, Tomorrow, Yesterday).
+    - **Logic:** Distinct card actions (Call, Navigate, Accept, Reject, View Details) based on status.
+
+**Date:** December 8, 2025

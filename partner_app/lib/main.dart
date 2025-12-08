@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:yutaa_partner_app/features/auth/screens/login_screen.dart';
 import 'package:yutaa_partner_app/features/auth/screens/otp_screen.dart';
 import 'package:yutaa_partner_app/features/auth/screens/registration_screen.dart';
+import 'package:yutaa_partner_app/features/credits/screens/recharge_screen.dart';
 import 'package:yutaa_partner_app/features/home/screens/dashboard_screen.dart';
 import 'package:yutaa_partner_app/features/onboarding/screens/onboarding_screen.dart';
 
@@ -37,6 +38,10 @@ final _router = GoRouter(
     GoRoute(
       path: '/dashboard',
       builder: (context, state) => const PartnerMainWrapper(),
+    ),
+    GoRoute(
+      path: '/recharge',
+      builder: (context, state) => const RechargeScreen(),
     ),
   ],
 );

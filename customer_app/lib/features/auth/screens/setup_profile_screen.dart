@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:yutaa_customer_app/theme/app_theme.dart';
+import 'package:yutaa_customer_app/core/api/api_client.dart';
 
 class SetupProfileScreen extends StatefulWidget {
   const SetupProfileScreen({super.key});
@@ -13,6 +14,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -22,7 +24,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
     super.dispose();
   }
 
-  void _onContinue() {
+  Future<void> _onContinue() async {
     if (_firstNameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -32,8 +34,42 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
       );
       return;
     }
-    // Navigate to Home after profile setup
-    context.go('/home');
+
+    setState(() => _isLoading = true);
+
+    try {
+      final firstName = _firstNameController.text.trim();
+      final lastName = _lastNameController.text.trim();
+      final fullName = lastName.isEmpty ? firstName : '$firstName $lastName';
+      final email = _emailController.text.trim();
+
+      final apiClient = ApiClient();
+      final response = await apiClient.updateProfile(
+        name: fullName,
+        email: email.isEmpty ? null : email,
+      );
+
+      if (response.statusCode == 200 && response.data['success']) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile updated successfully!')),
+          );
+          context.go('/home');
+        }
+      } else {
+        throw Exception(response.data['message'] ?? 'Failed to update profile');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -155,7 +191,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                     ],
                   ),
                   child: ElevatedButton(
-                    onPressed: _onContinue,
+                    onPressed: _isLoading ? null : _onContinue,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
@@ -163,14 +199,16 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Text(
-                      'Continue',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            'Continue',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
               ],

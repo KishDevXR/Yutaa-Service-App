@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:yutaa_partner_app/features/bookings/screens/bookings_screen.dart';
+import 'package:yutaa_partner_app/features/earnings/screens/earnings_screen.dart';
 import 'package:yutaa_partner_app/features/home/screens/home_screen.dart';
+import 'package:yutaa_partner_app/features/profile/screens/profile_screen.dart';
 import 'package:yutaa_partner_app/theme/app_theme.dart';
 
 class PartnerMainWrapper extends StatefulWidget {
@@ -17,8 +19,8 @@ class _PartnerMainWrapperState extends State<PartnerMainWrapper> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const BookingsScreen(),
-    const Center(child: Text("Earnings Screen")), // Placeholder
-    const Center(child: Text("Profile Screen")), // Placeholder
+    const EarningsScreen(),
+    const ProfileScreen(),
   ];
 
   @override

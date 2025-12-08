@@ -1,0 +1,83 @@
+/* Custom Overrides for ServiceHub Look */
+/* Global CSS Reset - bootstrap friendly */
+:root {
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  /* Remove forced colors that conflict with Bootstrap */
+  background-color: #f8fafc;
+  color: #212529;
+  /* Bootstrap default dark gray */
+}
+
+/* Scrollbar styling for sidebar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.bg-purple {
+  background-color: #8b5cf6 !important;
+  color: white !important;
+}
+
+.text-purple {
+  color: #8b5cf6 !important;
+}
+
+.btn-purple {
+  background-color: #8b5cf6;
+  color: white;
+  border: none;
+}
+
+.btn-purple:hover {
+  background-color: #7c3aed;
+  color: white;
+}
+
+.nav-link.active {
+  background-color: #8b5cf6 !important;
+  /* Force purple active state */
+  color: white !important;
+}
+
+.sidebar-link {
+  color: #94a3b8;
+  text-decoration: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+  transition: all 0.2s;
+}
+
+.sidebar-link:hover {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-link.active {
+  background-color: #8b5cf6;
+  color: white;
+  font-weight: 600;
+}

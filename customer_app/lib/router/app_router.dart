@@ -33,8 +33,17 @@ final router = GoRouter(
     GoRoute(
       path: '/otp',
       builder: (context, state) {
-        final phoneNumber = state.extra as String?;
-        return OtpVerificationScreen(phoneNumber: phoneNumber ?? '');
+        final extras = state.extra as Map<String, dynamic>?;
+        final phoneNumber = extras?['phoneNumber'] as String?;
+        final verificationId = extras?['verificationId'] as String?;
+        
+        // Handle legacy string pass if necessary (though we changed Login)
+        final legacyPhone = state.extra is String ? state.extra as String : null;
+
+        return OtpVerificationScreen(
+            phoneNumber: phoneNumber ?? legacyPhone ?? '',
+            verificationId: verificationId
+        );
       },
     ),
     GoRoute(

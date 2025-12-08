@@ -5,7 +5,11 @@ import 'package:yutaa_customer_app/router/app_router.dart';
 import 'package:yutaa_customer_app/theme/app_theme.dart';
 import 'package:yutaa_customer_app/theme/theme_provider.dart';
 
-void main() {
+import 'package:firebase_core/firebase_core.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const ProviderScope(child: YutaaCustomerApp()));
 }
 

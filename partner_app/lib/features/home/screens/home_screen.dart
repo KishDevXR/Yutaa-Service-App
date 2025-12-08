@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:yutaa_partner_app/providers/credits_provider.dart';
 import 'package:yutaa_partner_app/theme/app_theme.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -13,7 +15,86 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isOnline = true;
 
   @override
+  void initState() {
+    super.initState();
+    creditsProvider.addListener(_onCreditsChanged);
+  }
+
+  @override
+  void dispose() {
+    creditsProvider.removeListener(_onCreditsChanged);
+    super.dispose();
+  }
+
+  void _onCreditsChanged() {
+    setState(() {});
+  }
+
+  void _handleAcceptEnquiry() {
+    if (creditsProvider.hasEnoughCredits(CreditsProvider.enquiryAcceptCost)) {
+      creditsProvider.deductCredits(CreditsProvider.enquiryAcceptCost);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Enquiry accepted! 50 credits deducted. Balance: ${creditsProvider.credits}'),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        ),
+      );
+    } else {
+      _showInsufficientCreditsDialog();
+    }
+  }
+
+  void _showInsufficientCreditsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.warning_amber, color: Colors.amber.shade700),
+            const SizedBox(width: 8),
+            const Text('Insufficient Credits'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('You need at least 50 credits to accept an enquiry.'),
+            const SizedBox(height: 12),
+            Text(
+              'Current balance: ${creditsProvider.credits} credits',
+              style: TextStyle(color: Colors.red.shade700, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel', style: TextStyle(color: Colors.grey.shade600)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.push('/recharge');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryPurple,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Recharge Now'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final hasLowCredits = creditsProvider.credits < 100;
+
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
@@ -33,12 +114,90 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         backgroundColor: AppTheme.primaryPurple,
         elevation: 0,
+        actions: [
+          // Credits Display
+          GestureDetector(
+            onTap: () => context.push('/recharge'),
+            child: Container(
+              margin: const EdgeInsets.only(right: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: hasLowCredits ? Colors.red.withOpacity(0.2) : Colors.white.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: hasLowCredits ? Colors.red.withOpacity(0.5) : Colors.white.withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.monetization_on,
+                    color: hasLowCredits ? Colors.red.shade200 : Colors.amber,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${creditsProvider.credits}',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                  if (hasLowCredits) ...[
+                    const SizedBox(width: 4),
+                    const Icon(Icons.warning_amber, color: Colors.amber, size: 14),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Low Credits Warning Banner
+            if (hasLowCredits)
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.warning_amber, color: Colors.red.shade700, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Low credits! Recharge to accept job requests.',
+                        style: GoogleFonts.poppins(
+                          color: Colors.red.shade700,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => context.push('/recharge'),
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.red.shade700,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: const Text('Recharge'),
+                    ),
+                  ],
+                ),
+              ),
+
             // 1. Online Toggle Card
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -91,8 +250,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     activeColor: Colors.white,
                     activeTrackColor: const Color(0xFF4CAF50), 
                     inactiveThumbColor: Colors.white,
-                    inactiveTrackColor: Colors.grey.shade400, // Match screenshot grey
-                    trackOutlineColor: MaterialStateProperty.all(Colors.transparent),
+                    inactiveTrackColor: Colors.grey.shade400,
+                    trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
                     onChanged: (val) {
                       setState(() {
                         _isOnline = val;
@@ -264,7 +423,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         Expanded(
                           child: InkWell(
-                            onTap: () {},
+                            onTap: _handleAcceptEnquiry,
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               decoration: const BoxDecoration(

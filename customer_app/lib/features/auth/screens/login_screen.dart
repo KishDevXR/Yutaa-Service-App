@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:yutaa_customer_app/theme/app_theme.dart';
 import 'package:yutaa_customer_app/theme/theme_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -143,7 +144,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ],
                   ),
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (!_isValid || _phoneNumber.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -153,7 +154,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         );
                         return;
                       }
-                      context.push('/otp', extra: _phoneNumber);
+
+                      // Show loading indicator if needed
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Sending OTP...')),
+                      );
+
+                      await FirebaseAuth.instance.verifyPhoneNumber(
+                        phoneNumber: _phoneNumber,
+                        verificationCompleted: (PhoneAuthCredential credential) async {
+                          // Auto-retrieval or instant verification (Android only)
+                          // Navigate to OTP screen with credential to sign in automatically or handle here
+                          // For simplicity, we just log it for now as "verificationCompleted" usually implies successful auth
+                          // We can pass the credential to the next screen to auto-login
+                        },
+                        verificationFailed: (FirebaseAuthException e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                             SnackBar(content: Text('Verification Failed: ${e.message}'), backgroundColor: Colors.red),
+                          );
+                        },
+                        codeSent: (String verificationId, int? resendToken) {
+                           context.push('/otp', extra: {
+                             'phoneNumber': _phoneNumber,
+                             'verificationId': verificationId,
+                           });
+                        },
+                        codeAutoRetrievalTimeout: (String verificationId) {
+                          // Auto-resolving timeout
+                        },
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,

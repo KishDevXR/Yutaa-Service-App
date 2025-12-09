@@ -3,6 +3,12 @@ allprojects {
         google()
         mavenCentral()
     }
+     // Workaround for plugins missing local.properties values
+    project.ext {
+        set("flutter.minSdkVersion", 24)
+        set("flutter.compileSdkVersion", 35)
+        set("flutter.targetSdkVersion", 35)
+    }
 }
 
 rootProject.buildDir = "../build"

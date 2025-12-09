@@ -19,4 +19,7 @@ router.post('/documents/upload', authMiddleware, upload.single('document'), user
 // PUT /api/v1/users/availability (Authenticated)
 router.put('/availability', authMiddleware, userController.updateAvailability);
 
+// POST /api/v1/users/address (Authenticated)
+router.post('/address', authMiddleware, userController.addAddress);
+
 module.exports = router;

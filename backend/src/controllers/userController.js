@@ -152,11 +152,52 @@ exports.updateAvailability = async (req, res) => {
 
         res.json({
             success: true,
-            message: `You are now ${isAvailable ? 'online' : 'offline'}`,
-            user
+            isAvailable: user.isAvailable,
+            message: `Availability updated to ${isAvailable ? 'Online' : 'Offline'}`
         });
     } catch (error) {
         console.error('Update Availability Error:', error);
+        res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+    }
+};
+
+// Add new address
+exports.addAddress = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { label, fullAddress, city, pincode, lat, lng } = req.body;
+
+        if (!fullAddress || !lat || !lng) {
+            return res.status(400).json({ success: false, message: 'Address and coordinates are required' });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const newAddress = {
+            label: label || 'Home',
+            fullAddress,
+            city,
+            pincode,
+            location: {
+                lat,
+                lng
+            },
+            isDefault: user.addresses.length === 0 // Make default if it's the first address
+        };
+
+        user.addresses.push(newAddress);
+        await user.save();
+
+        res.json({
+            success: true,
+            message: 'Address added successfully',
+            addresses: user.addresses
+        });
+    } catch (error) {
+        console.error('Add Address Error:', error);
         res.status(500).json({ success: false, message: 'Server Error', error: error.message });
     }
 };

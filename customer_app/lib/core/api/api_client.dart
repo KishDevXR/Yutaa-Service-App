@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiClient {
   // Use computer's IP address for physical device testing
   // Use 10.0.2.2 for Android Emulator, localhost for iOS Simulator or Web
-  static const String _baseUrl = 'http://10.0.2.2:5000/api/v1';
+  static const String _baseUrl = 'http://192.168.2.107:5000/api/v1';
   late final Dio _dio;
 
   ApiClient() {
@@ -83,6 +83,25 @@ class ApiClient {
       if (dob != null) 'dob': dob,
       if (bio != null) 'bio': bio,
       if (profileImage != null) 'profileImage': profileImage,
+    });
+  }
+
+  // Helper method to add address
+  Future<Response> addAddress({
+    required String label,
+    required String fullAddress,
+    required String city,
+    required String pincode,
+    required double lat,
+    required double lng,
+  }) async {
+    return await _dio.post('/users/address', data: {
+      'label': label,
+      'fullAddress': fullAddress,
+      'city': city,
+      'pincode': pincode,
+      'lat': lat,
+      'lng': lng,
     });
   }
 

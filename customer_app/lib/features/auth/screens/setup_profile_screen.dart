@@ -54,7 +54,8 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Profile updated successfully!')),
           );
-          context.go('/home');
+          // Redirect to Add Address screen instead of home
+          context.go('/add-address');
         }
       } else {
         throw Exception(response.data['message'] ?? 'Failed to update profile');

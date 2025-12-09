@@ -86,8 +86,15 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
            ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Login Successful!')),
           );
+          
+          final user = response.data['user'];
+          final List addresses = user['addresses'] ?? [];
+
           if (isNewUser) {
              context.go('/setup-profile');
+          } else if (addresses.isEmpty) {
+             // If no addresses, force add address
+             context.go('/add-address'); 
           } else {
              context.go('/home');
           }

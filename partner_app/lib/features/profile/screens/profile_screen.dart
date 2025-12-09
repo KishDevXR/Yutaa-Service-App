@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:yutaa_partner_app/features/profile/widgets/profile_menu_item.dart';
 import 'package:yutaa_partner_app/theme/app_theme.dart';
+import 'package:yutaa_partner_app/core/api/api_client.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -12,9 +13,16 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isAvailable = true;
+  bool _isLoading = true;
 
-  // Mock data
-  final String _partnerName = "Vikram Singh";
+  // User data from API
+  String _partnerName = "Loading...";
+  String _partnerEmail = "";
+  String _serviceCategory = "";
+  int _experienceYears = 0;
+  String _bio = "";
+  
+  // Mock data (to be replaced with real data later)
   final double _rating = 4.8;
   final int _reviewCount = 248;
   final String _partnerSince = "2022";
@@ -23,6 +31,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final int _acceptRate = 95;
   final double _walletBalance = 1240.0;
   final int _activeServices = 3;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserProfile();
+  }
+
+  Future<void> _fetchUserProfile() async {
+    try {
+      final apiClient = ApiClient();
+      final response = await apiClient.getProfile();
+      
+      if (response.statusCode == 200 && response.data['success']) {
+        final user = response.data['user'];
+        if (mounted) {
+          setState(() {
+            _partnerName = user['name'] ?? 'Partner';
+            _partnerEmail = user['email'] ?? '';
+            _serviceCategory = user['serviceCategory'] ?? 'General';
+            _experienceYears = user['experienceYears'] ?? 0;
+            _bio = user['bio'] ?? '';
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _partnerName = 'Partner';
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,56 +150,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.star,
-                          color: Color(0xFFFFC107),
-                          size: 18,
+                    // Display service category if available
+                    if (_serviceCategory.isNotEmpty)
+                      Text(
+                        _serviceCategory,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade600,
+                          fontWeight: FontWeight.w500,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          _rating.toString(),
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF2D3142),
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '($_reviewCount reviews)',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'Partner since $_partnerSince',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey.shade500,
                       ),
-                    ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          // Stats Row
-          Row(
-            children: [
-              _buildStatItem(_jobsDone.toString(), 'Jobs Done'),
-              _buildStatDivider(),
-              _buildStatItem('$_onTimePercent%', 'On-time'),
-              _buildStatDivider(),
-              _buildStatItem('$_acceptRate%', 'Accept Rate'),
-            ],
-          ),
+          // Stats Row - Hidden (mock data)
+          // const SizedBox(height: 20),
+          // Row(
+          //   children: [
+          //     _buildStatItem(_jobsDone.toString(), 'Jobs Done'),
+          //     _buildStatDivider(),
+          //     _buildStatItem('$_onTimePercent%', 'On-time'),
+          //     _buildStatDivider(),
+          //     _buildStatItem('$_acceptRate%', 'Accept Rate'),
+          //   ],
+          // ),
           const SizedBox(height: 20),
           // Edit Profile Button
           SizedBox(

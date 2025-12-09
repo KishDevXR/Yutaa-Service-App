@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiClient {
   // Use computer's IP address for physical device testing
   // Use 10.0.2.2 for Android Emulator, localhost for iOS Simulator or Web
-  static const String _baseUrl = 'http://192.168.2.107:5000/api/v1';
+  static const String _baseUrl = 'http://10.0.2.2:5000/api/v1';
   late final Dio _dio;
 
   ApiClient() {
@@ -56,6 +56,8 @@ class ApiClient {
 
   Dio get dio => _dio;
 
+
+
   // Helper method for login
   Future<Response> login(String firebaseToken) async {
     return await _dio.post('/auth/login', data: {
@@ -65,14 +67,26 @@ class ApiClient {
 
   // Helper method for updating profile
   Future<Response> updateProfile({
-    required String name,
+    String? name,
     String? email,
+    String? phone,
+    String? gender,
+    String? dob,
+    String? bio,
     String? profileImage,
   }) async {
     return await _dio.put('/users/profile', data: {
-      'name': name,
+      if (name != null) 'name': name,
       if (email != null && email.isNotEmpty) 'email': email,
+      if (phone != null && phone.isNotEmpty) 'phone': phone,
+      if (gender != null) 'gender': gender,
+      if (dob != null) 'dob': dob,
+      if (bio != null) 'bio': bio,
       if (profileImage != null) 'profileImage': profileImage,
     });
+  }
+
+  Future<Response> getProfile() async {
+    return await _dio.get('/users/profile');
   }
 }

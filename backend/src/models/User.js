@@ -23,6 +23,13 @@ const userSchema = new mongoose.Schema({
         enum: ['customer', 'partner', 'admin'],
         default: 'customer',
     },
+    gender: {
+        type: String,
+        enum: ['Male', 'Female', 'Other'],
+    },
+    dob: {
+        type: String, // Storing as String "DD/MM/YYYY" to match UI for simplicity
+    },
     profileImage: {
         type: String,
     },
@@ -41,6 +48,56 @@ const userSchema = new mongoose.Schema({
     isActive: {
         type: Boolean,
         default: true,
+    },
+    // Partner-specific fields
+    serviceCategory: {
+        type: String,
+    },
+    experienceYears: {
+        type: Number,
+    },
+    bio: {
+        type: String,
+    },
+    isAvailable: {
+        type: Boolean,
+        default: false // Partners start offline, must manually go online
+    },
+    verificationStatus: {
+        type: String,
+        enum: ['pending', 'verified', 'rejected'],
+        default: function () {
+            return this.role === 'partner' ? 'pending' : null;
+        }
+    },
+    documents: [{
+        type: {
+            type: String,
+            enum: ['id_proof', 'address_proof', 'certificate', 'other'],
+            required: true
+        },
+        fileName: String,
+        url: String,
+        uploadedAt: {
+            type: Date,
+            default: Date.now
+        },
+        status: {
+            type: String,
+            enum: ['pending', 'verified', 'rejected'],
+            default: 'pending'
+        },
+        rejectionReason: String
+    }],
+    adminNotes: {
+        type: String,
+    },
+    verifiedAt: {
+        type: Date,
+    },
+    verifiedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     },
     createdAt: {
         type: Date,

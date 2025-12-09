@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:yutaa_partner_app/theme/app_theme.dart';
+import 'package:yutaa_partner_app/core/api/api_client.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -306,10 +307,30 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
-                      onPressed: () {
-                         // TODO: Submit logic
-                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registration Submitted!')));
-                         context.go('/dashboard');
+                      onPressed: () async {
+                         // Submit registration data to backend
+                         if (_nameController.text.trim().isEmpty) {
+                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter your name')));
+                           return;
+                         }
+                         try {
+                           final apiClient = ApiClient();
+                           await apiClient.updateProfile(
+                             name: _nameController.text.trim(),
+                             email: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
+                             serviceCategory: _selectedCategory,
+                             experienceYears: _experienceLevel.toInt(),
+                             bio: _bioController.text.trim().isEmpty ? null : _bioController.text.trim(),
+                           );
+                           if (context.mounted) {
+                             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registration Successful!')));
+                             context.go('/dashboard');
+                           }
+                         } catch (e) {
+                           if (context.mounted) {
+                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+                           }
+                         }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.grey.shade300, // Disabled look initially

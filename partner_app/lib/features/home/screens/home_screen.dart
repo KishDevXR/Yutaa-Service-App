@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:yutaa_partner_app/providers/credits_provider.dart';
 import 'package:yutaa_partner_app/theme/app_theme.dart';
+import 'package:yutaa_partner_app/core/api/api_client.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,12 +13,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool _isOnline = true;
+  bool _isOnline = false; // Start offline by default
 
   @override
   void initState() {
     super.initState();
     creditsProvider.addListener(_onCreditsChanged);
+    _fetchAvailabilityStatus();
   }
 
   @override
@@ -28,6 +30,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onCreditsChanged() {
     setState(() {});
+  }
+
+  Future<void> _fetchAvailabilityStatus() async {
+    try {
+      final apiClient = ApiClient();
+      final response = await apiClient.getProfile();
+      if (response.statusCode == 200 && response.data['success']) {
+        final user = response.data['user'];
+        if (mounted) {
+          setState(() {
+            _isOnline = user['isAvailable'] ?? false;
+          });
+        }
+      }
+    } catch (e) {
+      // Silently fail, keep default offline state
+    }
   }
 
   void _handleAcceptEnquiry() {
@@ -252,10 +271,27 @@ class _HomeScreenState extends State<HomeScreen> {
                     inactiveThumbColor: Colors.white,
                     inactiveTrackColor: Colors.grey.shade400,
                     trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
-                    onChanged: (val) {
+                    onChanged: (val) async {
+                      // Update UI immediately for better UX
                       setState(() {
                         _isOnline = val;
                       });
+                      
+                      // Call API to sync status with backend
+                      try {
+                        final apiClient = ApiClient();
+                        await apiClient.updateAvailability(val);
+                      } catch (e) {
+                        // Revert on error
+                        if (mounted) {
+                          setState(() {
+                            _isOnline = !val;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Failed to update status: $e')),
+                          );
+                        }
+                      }
                     },
                   ),
                 ],

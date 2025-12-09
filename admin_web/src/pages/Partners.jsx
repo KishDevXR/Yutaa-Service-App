@@ -42,7 +42,13 @@ export default function Partners() {
                             className="bg-light border-0 small"
                             style={{ width: 350, padding: '0.6rem 1rem' }}
                         />
-                        <Button className="btn-purple px-4 fw-semibold small">+ Add Partner</Button>
+                        <Button
+                            onClick={fetchPartners}
+                            className="btn-purple px-4 fw-semibold small d-flex align-items-center gap-2"
+                        >
+                            <i className="bi bi-arrow-clockwise"></i>
+                            Refresh
+                        </Button>
                     </div>
 
                     <Table responsive hover className="m-0 align-middle">
@@ -86,13 +92,13 @@ export default function Partners() {
                                         <td className="py-3">
                                             <Badge
                                                 bg="light"
-                                                className={`fw-medium px-3 py-2 rounded-pill small ${partner.isActive ? 'text-success' : 'text-danger'}`}
+                                                className={`fw-medium px-3 py-2 rounded-pill small ${partner.isAvailable ? 'text-success' : 'text-secondary'}`}
                                                 style={{
-                                                    backgroundColor: partner.isActive ? '#dcfce7' : '#fee2e2',
-                                                    color: partner.isActive ? '#16a34a' : '#ef4444'
+                                                    backgroundColor: partner.isAvailable ? '#dcfce7' : '#f3f4f6',
+                                                    color: partner.isAvailable ? '#16a34a' : '#6b7280'
                                                 }}
                                             >
-                                                {partner.isActive ? 'Active' : 'Pending'}
+                                                {partner.isAvailable ? 'Online' : 'Offline'}
                                             </Badge>
                                         </td>
                                         <td className="text-secondary small py-3">{partner.phone}</td>

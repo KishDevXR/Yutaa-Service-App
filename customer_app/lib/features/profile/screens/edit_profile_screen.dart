@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:yutaa_customer_app/theme/app_theme.dart';
+import 'package:yutaa_customer_app/core/api/api_client.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -10,15 +11,60 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final _firstNameController = TextEditingController(text: 'yousif');
-  final _lastNameController = TextEditingController(text: 'Johnson');
-  final _emailController = TextEditingController(text: 'test@gmail.com');
-  final _phoneController = TextEditingController(text: '+1 222 222 2222');
-  final _dobController = TextEditingController(text: '16/4/2025');
-  final _bioController = TextEditingController(text: 'njlknl');
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
 
   String _selectedGender = 'Male';
   final List<String> _genders = ['Male', 'Female', 'Other'];
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserProfile();
+  }
+
+  Future<void> _fetchUserProfile() async {
+    setState(() => _isLoading = true);
+    try {
+      final apiClient = ApiClient();
+      final response = await apiClient.getProfile();
+      
+      if (response.statusCode == 200 && response.data['success']) {
+        final user = response.data['user'];
+        if (mounted) {
+          setState(() {
+            // Split name into first and last name
+            final fullName = user['name'] as String? ?? '';
+            final nameParts = fullName.split(' ');
+            if (nameParts.isNotEmpty) {
+              _firstNameController.text = nameParts.first;
+              if (nameParts.length > 1) {
+                _lastNameController.text = nameParts.sublist(1).join(' ');
+              }
+            }
+            
+            _emailController.text = user['email'] ?? '';
+            _phoneController.text = user['phone'] ?? '';
+            
+            if (user['gender'] != null && _genders.contains(user['gender'])) {
+              _selectedGender = user['gender'];
+            }
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load profile: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -26,29 +72,42 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _lastNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
-    _dobController.dispose();
-    _bioController.dispose();
     super.dispose();
   }
 
-  void _onUpdate() {
-    // Navigate back to Profile
-    context.pop();
-  }
+  Future<void> _onUpdate() async {
+    setState(() => _isLoading = true);
+    try {
+      final apiClient = ApiClient();
+      final fullName = '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}'.trim();
+      
+      final response = await apiClient.updateProfile(
+        name: fullName,
+        email: _emailController.text.trim(),
+        phone: _phoneController.text.trim(),
+        gender: _selectedGender,
+      );
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null) {
-      setState(() {
-        _dobController.text = "${picked.day}/${picked.month}/${picked.year}";
-      });
+      if (response.statusCode == 200 && response.data['success']) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile updated successfully')),
+          );
+          context.pop(); // Navigate back
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Update failed: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -188,26 +247,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
-
-                // Birth Date
-                 _buildTextField(
-                  context,
-                  controller: _dobController,
-                  label: 'Birth date',
-                  readOnly: true,
-                  onTap: () => _selectDate(context),
-                  suffixIcon: Icons.calendar_today_outlined,
-                ),
-                const SizedBox(height: 16),
-                
-                // Bio
-                 _buildTextField(
-                  context,
-                  controller: _bioController,
-                  label: 'Bio',
-                ),
-
                 const SizedBox(height: 32),
 
                 // Update Button
@@ -227,14 +266,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      'Update informations',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: _isLoading 
+                      ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                      : const Text(
+                          'Update informations',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+
                   ),
                 ),
                 const SizedBox(height: 20),

@@ -3,16 +3,58 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:yutaa_customer_app/theme/app_theme.dart';
 import 'package:yutaa_customer_app/theme/theme_provider.dart';
+import 'package:yutaa_customer_app/core/api/api_client.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  String _userName = 'Loading...';
+  String _userEmail = '';
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserProfile();
+  }
+
+  Future<void> _fetchUserProfile() async {
+    try {
+      final apiClient = ApiClient();
+      final response = await apiClient.getProfile();
+      
+      if (response.statusCode == 200 && response.data['success']) {
+        final user = response.data['user'];
+        if (mounted) {
+          setState(() {
+            _userName = user['name'] ?? 'User';
+            _userEmail = user['email'] ?? '';
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _userName = 'User';
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
+
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -39,7 +81,7 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'yousif Johnson',
+                      _userName,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,

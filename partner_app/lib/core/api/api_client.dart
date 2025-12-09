@@ -38,15 +38,26 @@ class ApiClient {
     required String name,
     String? email,
     String? serviceCategory,
+    int? experienceYears,
+    String? bio,
   }) async {
     return await _dio.put('/users/profile', data: {
       'name': name,
       if (email != null) 'email': email,
       if (serviceCategory != null) 'serviceCategory': serviceCategory,
+      if (experienceYears != null) 'experienceYears': experienceYears,
+      if (bio != null) 'bio': bio,
     });
   }
 
   Future<Response> getProfile() async {
     return await _dio.get('/users/profile');
+  }
+
+  Future<Response> updateAvailability(bool isAvailable) async {
+    return await _dio.put(
+      '/users/availability',
+      data: {'isAvailable': isAvailable},
+    );
   }
 }

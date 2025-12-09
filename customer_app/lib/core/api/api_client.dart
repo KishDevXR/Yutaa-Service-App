@@ -3,9 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiClient {
-  // Use 10.0.2.2 for Android Emulator to access localhost
-  // Use localhost for iOS Simulator or Web
-  static const String _baseUrl = 'http://10.0.2.2:5000/api/v1';
+  // Use computer's IP address for physical device testing
+  // Use 10.0.2.2 for Android Emulator, localhost for iOS Simulator or Web
+  static const String _baseUrl = 'http://192.168.2.107:5000/api/v1';
   late final Dio _dio;
 
   ApiClient() {

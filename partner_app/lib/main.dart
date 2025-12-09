@@ -3,13 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:yutaa_partner_app/features/auth/screens/login_screen.dart';
-import 'package:yutaa_partner_app/features/auth/screens/otp_screen.dart';
+import 'package:yutaa_partner_app/features/auth/screens/otp_verification_screen.dart';
 import 'package:yutaa_partner_app/features/auth/screens/registration_screen.dart';
 import 'package:yutaa_partner_app/features/credits/screens/recharge_screen.dart';
 import 'package:yutaa_partner_app/features/home/screens/dashboard_screen.dart';
 import 'package:yutaa_partner_app/features/onboarding/screens/onboarding_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const ProviderScope(child: YutaaPartnerApp()));
 }
 
@@ -27,8 +30,14 @@ final _router = GoRouter(
     GoRoute(
       path: '/otp',
       builder: (context, state) {
-        final phone = state.extra as String? ?? '';
-        return OtpScreen(phoneNumber: phone);
+        final extras = state.extra as Map<String, dynamic>?;
+        final phoneNumber = extras?['phoneNumber'] as String?;
+        final verificationId = extras?['verificationId'] as String?;
+        
+        return OtpVerificationScreen(
+          phoneNumber: phoneNumber ?? '',
+          verificationId: verificationId,
+        );
       },
     ),
     GoRoute(

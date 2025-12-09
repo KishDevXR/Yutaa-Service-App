@@ -53,8 +53,17 @@ exports.login = async (req, res) => {
             }
         }
 
+
         if (!phone) {
             return res.status(401).json({ success: false, message: 'Invalid token: Phone number not found' });
+        }
+
+        // Get role from query parameter (default to customer)
+        const role = req.query.role || 'customer';
+
+        // Validate role
+        if (!['customer', 'partner'].includes(role)) {
+            return res.status(400).json({ success: false, message: 'Invalid role' });
         }
 
         // 2. Find or Create User
@@ -65,7 +74,7 @@ exports.login = async (req, res) => {
             isNewUser = true;
             user = await User.create({
                 phone,
-                role: 'customer'
+                role
             });
         }
 

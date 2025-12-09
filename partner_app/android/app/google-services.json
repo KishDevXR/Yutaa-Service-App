@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "52066092386",
+    "project_id": "yutaa-service-app",
+    "storage_bucket": "yutaa-service-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:52066092386:android:56e357123599fe7527583b",
+        "android_client_info": {
+          "package_name": "com.yutaa.yutaa_partner_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcsx_f2GXWPdL18ryTyQ9mlli9Qzo3kuU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:52066092386:android:662b4ebdb408696d27583b",
+        "android_client_info": {
+          "package_name": "com.yutaa.yutaa_service_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcsx_f2GXWPdL18ryTyQ9mlli9Qzo3kuU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
